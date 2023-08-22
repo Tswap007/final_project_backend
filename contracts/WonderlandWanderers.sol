@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -12,9 +13,11 @@ contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
     Counters.Counter private _tokenIdCounter;
 
     // Mapping to store custom URIs for each token
-    mapping(uint256 => string) private _tokenURIs;
-    // Mapping to store and check if metaDataUri exists figured this will be cheaper and faster than looping through each tokenId and comparing their URI.
-    mapping(string => bool) private _itemExists;
+    mapping(uint256 => string) private _tokenIdToMetadataURI;
+    // Mapping to store and check if ImageUri exists figured this will be cheaper and faster than looping through each tokenId and comparing their URI.
+    mapping(string => bool) private _imageUriExist;
+    // Mapping to store id to coresponding ImageUri
+    mapping(uint256 => string) private _tokenIdToImageUri;
 
     constructor() ERC721("Wonderland Wanderers", "WW") {}
 
@@ -23,12 +26,13 @@ contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
         string memory metaDataUri,
         string memory imageUri
     ) public {
-        require(_itemExists[imageUri] == false, "Item Exists Already");
+        require(_imageUriExist[imageUri] == false, "Item Exists Already");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
-        _tokenURIs[tokenId] = metaDataUri; // Store the custom URI for the token
-        _itemExists[imageUri] = true; // store the metaDataUri exist bool to use for checks
+        _tokenIdToMetadataURI[tokenId] = metaDataUri; // Store the metaData URI for the token
+        _imageUriExist[imageUri] = true; // store the image Uri from the metadata exist bool to use for checks
+        _tokenIdToImageUri[tokenId] = imageUri; //store a mapping of token Id to image uri so as to enable some further actions
     }
 
     // Override tokenURI function to use custom URIs
@@ -39,7 +43,7 @@ contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
             _exists(tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
-        return _tokenURIs[tokenId];
+        return _tokenIdToMetadataURI[tokenId];
     }
 
     function getTotalItemCount() public view returns (uint256) {
@@ -48,7 +52,7 @@ contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
     }
 
     function itemExists(string memory proposedURI) public view returns (bool) {
-        return _itemExists[proposedURI];
+        return _imageUriExist[proposedURI];
     }
 
     // The following functions are overrides required by Solidity.
@@ -56,11 +60,11 @@ contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
     function _burn(
         uint256 tokenId
     ) internal override(ERC721, ERC721URIStorage) {
+        string memory imageUri = _tokenIdToImageUri[tokenId];
+        delete _tokenIdToMetadataURI[tokenId];
+        delete _imageUriExist[imageUri];
+        delete _tokenIdToImageUri[tokenId];
         super._burn(tokenId);
-        // Clear the custom URI for the burned token
-        if (bytes(_tokenURIs[tokenId]).length != 0) {
-            delete _tokenURIs[tokenId];
-        }
     }
 
     function supportsInterface(

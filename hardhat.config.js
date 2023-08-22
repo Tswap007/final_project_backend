@@ -8,6 +8,14 @@ module.exports = {
     sepolia: {
       url: process.env.SEPOLIA_URL,
       accounts: [process.env.PRIVATE_KEY]
+    },
+    arbitrumGoerli: {
+      url: process.env.ARBITRUM_GOERLI_URL,
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    arbitrumGoerli: {
+      url: process.env.MUMBAI_URL,
+      accounts: [process.env.PRIVATE_KEY]
     }
   },
   etherscan: {
