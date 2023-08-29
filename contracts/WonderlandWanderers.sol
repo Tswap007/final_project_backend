@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
+//next order of business work on the practice burn and mint bridge project.
+
 contract WonderlandWanderers is ERC721, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 

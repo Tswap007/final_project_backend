@@ -13,7 +13,7 @@ module.exports = {
       url: process.env.ARBITRUM_GOERLI_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
-    arbitrumGoerli: {
+    mumbai: {
       url: process.env.MUMBAI_URL,
       accounts: [process.env.PRIVATE_KEY]
     }
